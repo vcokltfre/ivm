@@ -67,6 +67,12 @@ def get_str_slice() -> bytes:
 def str_length() -> bytes:
     return bytes([0x21])
 
+def cast_itos() -> bytes:
+    return bytes([0x30, 0x01])
+
+def cast_stoi() -> bytes:
+    return bytes([0x30, 0x02])
+
 def cmp_equal() -> bytes:
     return bytes([0xD0, 0x01])
 

@@ -18,6 +18,8 @@ const OP_MOD: u8 = 0x14;
 const OP_STR_GET_SLICE: u8 = 0x20;
 const OP_STR_LENGTH: u8 = 0x21;
 
+const OP_CAST: u8 = 0x30;
+
 const OP_CMP: u8 = 0xD0;
 
 const OP_LABEL: u8 = 0xE0;
@@ -38,6 +40,9 @@ const PUSH_TYPE_STRING: u8 = 0x03;
 const PUSH_TYPE_BOOLEAN: u8 = 0x04;
 const PUSH_TYPE_INTEGER_POWER: u8 = 0x05;
 const PUSH_TYPE_INTEGER_POWER_SUB: u8 = 0x06;
+
+const CAST_TYPE_ITOS: u8 = 0x01;
+const CAST_TYPE_STOI: u8 = 0x02;
 
 const CMP_TYPE_EQUAL: u8 = 0x01;
 const CMP_TYPE_NOT_EQUAL: u8 = 0x02;
@@ -672,6 +677,57 @@ impl VM {
 
                     let length = val.len() as i64;
                     self.stack.push(IVMType::Integer { value: length });
+                }
+                OP_CAST => {
+                    if !self.can_advance(1) {
+                        println!("Error: Incomplete CAST instruction");
+                        break;
+                    }
+
+                    let cast_type = self.bytecode[self.index];
+                    self.index += 1;
+
+                    if resolve {
+                        continue;
+                    }
+
+                    let value = match self.stack.pop() {
+                        Some(val) => val,
+                        None => {
+                            println!("Error: Stack underflow on CAST");
+                            break;
+                        }
+                    };
+
+                    match (cast_type, value) {
+                        (CAST_TYPE_ITOS, IVMType::Integer { value }) => {
+                            let char_value = std::char::from_u32(value as u32);
+                            match char_value {
+                                Some(c) => self.stack.push(IVMType::String {
+                                    value: c.to_string(),
+                                }),
+                                None => {
+                                    println!("Error: Invalid integer value for ITOS cast");
+                                    break;
+                                }
+                            }
+                        }
+                        (CAST_TYPE_STOI, IVMType::String { value }) => {
+                            let chars = value.chars().collect::<Vec<char>>();
+                            if chars.len() != 1 {
+                                println!("Error: Invalid string length for STOI cast");
+                                break;
+                            }
+
+                            self.stack.push(IVMType::Integer {
+                                value: chars[0] as i64,
+                            });
+                        }
+                        _ => {
+                            println!("Error: Invalid CAST operation");
+                            break;
+                        }
+                    }
                 }
                 OP_CMP => {
                     if !self.can_advance(1) {

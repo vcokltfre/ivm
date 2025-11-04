@@ -71,6 +71,17 @@ Calculates the modulus of the top two integer values on the stack and pushes the
 
 Gets a substring from the string at the top of the stack (excluding start and end indices). The next two values on the stack are the start (top-1) and end (top) indices (integers). Pushes the resulting substring back onto the stack.
 
+### `STR_LENGTH` - `0x21`
+
+Calculates the length of the string at the top of the stack and pushes the length (integer) back onto the stack.
+
+### `CAST` - `0x30`
+
+Casts the top value on the stack to a different type. The next byte indicates the target type:
+
+- `0x01`: Integer to String
+- `0x02`: String to Integer
+
 ### `CMP` - `0xD0`
 
 Compares the top two values on the stack. The next byte indicates the type of comparison:

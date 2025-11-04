@@ -16,6 +16,8 @@ OP_MOD = 0x14
 OP_STR_GET_SLICE = 0x20
 OP_STR_LENGTH = 0x21
 
+OP_CAST = 0x30
+
 OP_CMP = 0xD0
 
 OP_LABEL = 0xE0
@@ -36,6 +38,9 @@ PUSH_TYPE_STRING = 0x03
 PUSH_TYPE_BOOLEAN = 0x04
 PUSH_TYPE_INTEGER_POWER = 0x05
 PUSH_TYPE_INTEGER_POWER_SUB = 0x06
+
+CAST_TYPE_ITOS = 0x01
+CAST_TYPE_STOI = 0x02
 
 CMP_TYPE_EQUAL = 0x01
 CMP_TYPE_NOT_EQUAL = 0x02
@@ -122,6 +127,17 @@ def disassemble(data: bytes) -> None:
             print(f"{index - 1:08x}: STR_GET_SLICE")
         elif c == OP_STR_LENGTH:
             print(f"{index - 1:08x}: STR_LENGTH")
+        elif c == OP_CAST:
+            ctype = data[index]
+            index += 1
+
+            if ctype == CAST_TYPE_ITOS:
+                ctype_str = "ITOS"
+            elif ctype == CAST_TYPE_STOI:
+                ctype_str = "STOI"
+            else:
+                ctype_str = f"UNKNOWN({ctype})"
+            print(f"{index - 2:08x}: CAST TYPE {ctype} ({ctype_str})")
         elif c == OP_CMP:
             ctype = data[index]
             index += 1
