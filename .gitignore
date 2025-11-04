@@ -1,6 +1,7 @@
 /target
 *.py
 !ivm.py
+!dis.py
 __pycache__/
 *.txt
 *.ivm
