@@ -1,4 +1,4 @@
-use std::{collections::HashMap};
+use std::{collections::HashMap, io::Write};
 
 const OP_DEBUG: u8 = 0x00;
 const OP_PUSH: u8 = 0x01;
@@ -200,6 +200,8 @@ impl VM {
 
     pub fn run(&mut self, resolve: bool) {
         let stdin = std::io::stdin();
+        let stdout = std::io::stdout();
+        let stderr = std::io::stderr();
 
         self.index = 0;
 
@@ -905,10 +907,10 @@ impl VM {
                     };
 
                     match value {
-                        IVMType::Integer { value } => println!("{}", value),
-                        IVMType::Float { value } => println!("{}", value),
-                        IVMType::String { value } => println!("{}", value),
-                        IVMType::Boolean { value } => println!("{}", value),
+                        IVMType::Integer { value } => stdout.lock().write_all(format!("{}", value).as_bytes()).unwrap(),
+                        IVMType::Float { value } => stdout.lock().write_all(format!("{}", value).as_bytes()).unwrap(),
+                        IVMType::String { value } => stdout.lock().write_all(value.as_bytes()).unwrap(),
+                        IVMType::Boolean { value } => stdout.lock().write_all(format!("{}", value).as_bytes()).unwrap(),
                     }
                 }
                 OP_DISPLAY_STDERR => {
@@ -925,10 +927,10 @@ impl VM {
                     };
 
                     match value {
-                        IVMType::Integer { value } => eprintln!("{}", value),
-                        IVMType::Float { value } => eprintln!("{}", value),
-                        IVMType::String { value } => eprintln!("{}", value),
-                        IVMType::Boolean { value } => eprintln!("{}", value),
+                        IVMType::Integer { value } => stderr.lock().write_all(format!("{}", value).as_bytes()).unwrap(),
+                        IVMType::Float { value } => stderr.lock().write_all(format!("{}", value).as_bytes()).unwrap(),
+                        IVMType::String { value } => stderr.lock().write_all(value.as_bytes()).unwrap(),
+                        IVMType::Boolean { value } => stderr.lock().write_all(format!("{}", value).as_bytes()).unwrap(),
                     }
                 }
                 OP_INPUT => {
