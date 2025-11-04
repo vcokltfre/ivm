@@ -41,6 +41,11 @@ def swap() -> bytes:
 def pop() -> bytes:
     return bytes([0x06])
 
+def free(name: str) -> bytes:
+    encoded = name.encode('utf-8')
+    length = len(encoded)
+    return bytes([0x07]) + length.to_bytes(1, byteorder='little') + encoded
+
 def add() -> bytes:
     return bytes([0x10])
 

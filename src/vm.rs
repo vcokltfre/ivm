@@ -7,6 +7,7 @@ const OP_STORE: u8 = 0x03;
 const OP_DUP: u8 = 0x04;
 const OP_SWAP: u8 = 0x05;
 const OP_POP: u8 = 0x06;
+const OP_FREE: u8 = 0x07;
 
 const OP_ADD: u8 = 0x10;
 const OP_SUB: u8 = 0x11;
@@ -215,6 +216,7 @@ impl VM {
                     println!("Stack: {:?}", self.stack);
                     println!("Memory: {:?}", self.memory);
                     println!("Labels: {:?}", self.labels);
+                    println!("Calls: {:?}", self.calls);
                 }
                 OP_PUSH => {
                     if !self.can_advance(1) {
@@ -444,6 +446,30 @@ impl VM {
                     }
 
                     self.stack.pop();
+                }
+                OP_FREE => {
+                    if !self.can_advance(1) {
+                        println!("Error: Incomplete FREE instruction");
+                        break;
+                    }
+
+                    let str_len = self.bytecode[self.index] as usize;
+                    self.index += 1;
+
+                    if !self.can_advance(str_len) {
+                        println!("Error: Incomplete FREE key data");
+                        break;
+                    }
+
+                    let key_bytes = &self.bytecode[self.index..self.index + str_len];
+                    let key = String::from_utf8_lossy(key_bytes).to_string();
+                    self.index += str_len;
+
+                    if resolve {
+                        continue;
+                    }
+
+                    self.memory.remove(&key);
                 }
                 OP_ADD => {
                     if resolve {
@@ -842,8 +868,7 @@ impl VM {
                     match self.labels.get(&label_name) {
                         Some(&target_index) => {
                             self.calls.push(self.index);
-                            self.index = target_index
-
+                            self.index = target_index;
                         },
                         None => {
                             println!("Error: Label '{}' not found for CALL", label_name);
@@ -859,7 +884,7 @@ impl VM {
                     let return_address = match self.calls.pop() {
                         Some(value) => value,
                         _ => {
-                            println!("Error: Expected Integer on stack for RETURN");
+                            println!("Error: Call stack underflow on RETURN");
                             break;
                         }
                     };
