@@ -27,10 +27,16 @@ def load(name: str) -> bytes:
     length = len(encoded)
     return bytes([0x02]) + length.to_bytes(1, byteorder='little') + encoded
 
+def load_ref() -> bytes:
+    return bytes([0x08])
+
 def store(name: str) -> bytes:
     encoded = name.encode('utf-8')
     length = len(encoded)
     return bytes([0x03]) + length.to_bytes(1, byteorder='little') + encoded
+
+def store_ref() -> bytes:
+    return bytes([0x09])
 
 def dup() -> bytes:
     return bytes([0x04])

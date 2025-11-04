@@ -47,6 +47,14 @@ Removes the top value from the stack.
 
 Free a variable from memory. The next byte indicates the length of the variable name, followed by the variable name itself.
 
+### `LOAD_REF` - `0x08`
+
+Loads a reference to a variable from memory onto the stack.
+
+### `STORE_REF` - `0x09`
+
+Stores a reference from the stack into memory.
+
 ### `ADD` - `0x10`
 
 Adds the top two values on the stack and pushes the result back onto the stack.

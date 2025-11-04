@@ -6,6 +6,8 @@ OP_DUP = 0x04
 OP_SWAP = 0x05
 OP_POP = 0x06
 OP_FREE = 0x07
+OP_LOAD_REF = 0x08
+OP_STORE_REF = 0x09
 
 OP_ADD = 0x10
 OP_SUB = 0x11
@@ -113,6 +115,10 @@ def disassemble(data: bytes) -> None:
             name = data[index:index+namelen].decode('utf-8')
             index += namelen
             print(f"{index - (1 + namelen):08x}: FREE {name}")
+        elif c == OP_LOAD_REF:
+            print(f"{index - 1:08x}: LOAD_REF")
+        elif c == OP_STORE_REF:
+            print(f"{index - 1:08x}: STORE_REF")
         elif c == OP_ADD:
             print(f"{index - 1:08x}: ADD")
         elif c == OP_SUB:

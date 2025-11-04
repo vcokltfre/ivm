@@ -8,6 +8,8 @@ const OP_DUP: u8 = 0x04;
 const OP_SWAP: u8 = 0x05;
 const OP_POP: u8 = 0x06;
 const OP_FREE: u8 = 0x07;
+const OP_LOAD_REF: u8 = 0x08;
+const OP_STORE_REF: u8 = 0x09;
 
 const OP_ADD: u8 = 0x10;
 const OP_SUB: u8 = 0x11;
@@ -382,6 +384,25 @@ impl VM {
                         None => println!("Error: Key '{}' not found in memory", key),
                     }
                 }
+                OP_LOAD_REF => {
+                    if resolve {
+                        continue;
+                    }
+
+                    let loc = match self.stack.pop() {
+                        Some(IVMType::String { value }) => value,
+                        _ => {
+                            println!("Error: Expected String on stack for LOAD_REF");
+                            break;
+                        }
+                    };
+
+                    let value = self.memory.get(&loc);
+                    match value {
+                        Some(val) => self.stack.push(val.clone()),
+                        None => println!("Error: Key '{}' not found in memory", loc),
+                    }
+                }
                 OP_STORE => {
                     if !self.can_advance(1) {
                         println!("Error: Incomplete STORE instruction");
@@ -413,6 +434,29 @@ impl VM {
                     };
 
                     self.memory.insert(key, value);
+                }
+                OP_STORE_REF => {
+                    if resolve {
+                        continue;
+                    }
+
+                    let loc = match self.stack.pop() {
+                        Some(IVMType::String { value }) => value,
+                        _ => {
+                            println!("Error: Expected String on stack for STORE_REF");
+                            break;
+                        }
+                    };
+
+                    let value = match self.stack.pop() {
+                        Some(val) => val,
+                        None => {
+                            println!("Error: Stack underflow on STORE_REF");
+                            break;
+                        }
+                    };
+
+                    self.memory.insert(loc, value);
                 }
                 OP_DUP => {
                     if resolve {
